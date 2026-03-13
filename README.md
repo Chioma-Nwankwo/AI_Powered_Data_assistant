@@ -6,7 +6,7 @@ A modern, production-ready web application that enables students and professiona
 
 ### Core Functionality
 - **File Upload**: Support for CSV and Excel files with drag-and-drop interface
-- **AI Analysis**: Automatic data analysis and summary generation using OpenAI
+- **AI Analysis**: Automatic data analysis and summary generation using OpenAI(currently under refinement)
 - **Natural Language Queries**: Ask questions about your data in plain English
 - **Visual Insights**: Automatic chart generation (bar, line, pie, area, scatter)
 - **Suggested Questions**: AI-generated relevant questions about your dataset
