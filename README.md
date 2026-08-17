@@ -222,4 +222,4 @@ This project is built for educational and professional use.
 
 ## Support
 
-For questions or issues, please refer to the documentation or contact support.
+For questions or issues, please reach out to chioman059@gmail.com.
