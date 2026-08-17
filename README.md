@@ -6,7 +6,7 @@ A modern, production-ready web application that enables students and professiona
 
 ### Core Functionality
 - **File Upload**: Support for CSV and Excel files with drag-and-drop interface
-- **AI Analysis**: Automatic data analysis and summary generation using OpenAI
+- **AI Analysis**: Automatic data analysis and summary generation using Google Gemini
 - **Natural Language Queries**: Ask questions about your data in plain English
 - **Visual Insights**: Automatic chart generation (bar, line, pie, area, scatter)
 - **Suggested Questions**: AI-generated relevant questions about your dataset
@@ -20,7 +20,7 @@ A modern, production-ready web application that enables students and professiona
 
 ### Technical Features
 - **Supabase Backend**: Database, authentication, and storage
-- **Edge Functions**: Serverless API for OpenAI integration
+- **Edge Functions**: Serverless API for Google Gemini integration
 - **Row Level Security**: Secure data access policies
 - **Responsive Design**: Mobile-friendly interface
 - **Smooth Animations**: Framer Motion for enhanced UX
@@ -34,7 +34,7 @@ A modern, production-ready web application that enables students and professiona
 - **Charts**: Recharts
 - **Routing**: React Router v6
 - **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-- **AI**: OpenAI GPT-4o-mini
+- **AI**: Google Gemini (gemini-2.5-flash)
 - **Data Parsing**: PapaParse
 
 ## Project Structure
@@ -86,7 +86,7 @@ src/
 ### Prerequisites
 - Node.js 18+ installed
 - A Supabase account and project
-- An OpenAI API key
+- A Google Gemini API key (free, from Google AI Studio)
 
 ### Environment Variables
 
@@ -97,7 +97,7 @@ VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-The OpenAI API key needs to be configured in your Supabase project as a secret named `OPENAI_API_KEY`.
+The Gemini API key needs to be configured in your Supabase project as a secret named `GEMINI_API_KEY`.
 
 ### Installation
 
@@ -148,7 +148,7 @@ npm run typecheck
 ### Chat Interface
 1. User asks a question in natural language
 2. Question is sent to the Edge Function with file context
-3. OpenAI processes the query and generates an answer
+3. Gemini processes the query and generates an answer
 4. If applicable, chart data is also generated
 5. Response is displayed with optional visualization
 6. Conversation history is persisted in the database

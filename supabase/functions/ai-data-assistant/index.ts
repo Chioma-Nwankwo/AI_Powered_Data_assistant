@@ -6,6 +6,48 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+const GEMINI_MODEL = "gemini-2.5-flash";
+
+async function callGemini(
+  apiKey: string,
+  systemInstruction: string,
+  prompt: string,
+  jsonResponse: boolean
+) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+          ...(jsonResponse ? { responseMimeType: "application/json" } : {}),
+        },
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error?.message || "Gemini API error");
+  }
+
+  const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    throw new Error("Gemini returned no content");
+  }
+
+  return text;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -16,11 +58,11 @@ Deno.serve(async (req: Request) => {
 
   try {
     const { action, data } = await req.json();
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
-    if (!openaiApiKey) {
+    if (!geminiApiKey) {
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        JSON.stringify({ error: 'Gemini API key not configured' }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -31,7 +73,7 @@ Deno.serve(async (req: Request) => {
     switch (action) {
       case 'analyze-data': {
         const { columns, sampleRows, rowCount } = data;
-        
+
         const prompt = `Analyze this dataset and provide:
 1. A brief summary (2-3 sentences) of what this data contains
 2. Key insights about the data structure
@@ -45,33 +87,15 @@ ${JSON.stringify(sampleRows, null, 2)}
 
 Provide a concise, informative summary.`;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              { role: 'system', content: 'You are a data analysis expert. Provide clear, concise insights about datasets.' },
-              { role: 'user', content: prompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 500,
-          }),
-        });
-
-        const result = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(result.error?.message || 'OpenAI API error');
-        }
+        const summary = await callGemini(
+          geminiApiKey,
+          'You are a data analysis expert. Provide clear, concise insights about datasets.',
+          prompt,
+          false
+        );
 
         return new Response(
-          JSON.stringify({ 
-            summary: result.choices[0].message.content 
-          }),
+          JSON.stringify({ summary }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
@@ -80,7 +104,7 @@ Provide a concise, informative summary.`;
 
       case 'generate-questions': {
         const { columns, summary } = data;
-        
+
         const prompt = `Based on this dataset, generate 5 insightful questions that a user might want to ask:
 
 Dataset Summary: ${summary}
@@ -94,32 +118,16 @@ Generate questions that:
 
 Return ONLY a JSON array of strings (the questions), nothing else.`;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              { role: 'system', content: 'You are a data analyst. Generate relevant questions about datasets. Return only valid JSON arrays.' },
-              { role: 'user', content: prompt }
-            ],
-            temperature: 0.8,
-            max_tokens: 300,
-          }),
-        });
-
-        const result = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(result.error?.message || 'OpenAI API error');
-        }
+        const text = await callGemini(
+          geminiApiKey,
+          'You are a data analyst. Generate relevant questions about datasets. Return only valid JSON arrays.',
+          prompt,
+          true
+        );
 
         let questions;
         try {
-          questions = JSON.parse(result.choices[0].message.content);
+          questions = JSON.parse(text);
         } catch {
           questions = [
             "What are the main trends in this data?",
@@ -140,7 +148,7 @@ Return ONLY a JSON array of strings (the questions), nothing else.`;
 
       case 'query-data': {
         const { question, columns, sampleData, fullDataSummary } = data;
-        
+
         const prompt = `Answer this question about the dataset: "${question}"
 
 Dataset Context:
@@ -164,38 +172,19 @@ Return your response as JSON with this structure:
   "chartData": {"type": "bar", "data": [...]} or null if no chart needed
 }`;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              { 
-                role: 'system', 
-                content: 'You are a data analyst. Answer questions about datasets clearly and suggest visualizations when appropriate. Always return valid JSON.' 
-              },
-              { role: 'user', content: prompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 800,
-          }),
-        });
-
-        const result = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(result.error?.message || 'OpenAI API error');
-        }
+        const text = await callGemini(
+          geminiApiKey,
+          'You are a data analyst. Answer questions about datasets clearly and suggest visualizations when appropriate. Always return valid JSON.',
+          prompt,
+          true
+        );
 
         let parsedResponse;
         try {
-          parsedResponse = JSON.parse(result.choices[0].message.content);
+          parsedResponse = JSON.parse(text);
         } catch {
           parsedResponse = {
-            answer: result.choices[0].message.content,
+            answer: text,
             chartData: null
           };
         }
