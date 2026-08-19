@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, Lightbulb } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { supabase } from '../lib/supabase';
 import { queryData } from '../lib/api';
 import { getSampleRows } from '../lib/fileUtils';
@@ -195,7 +197,27 @@ export default function ChatInterface({ file, fileData, suggestedQuestions }: Ch
                     : 'bg-gray-100 text-gray-900'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                {message.role === 'assistant' ? (
+                  <div className="text-sm markdown-content">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({ ...props }) => <h1 className="text-base font-bold mt-3 mb-1 first:mt-0" {...props} />,
+                        h2: ({ ...props }) => <h2 className="text-base font-bold mt-3 mb-1 first:mt-0" {...props} />,
+                        h3: ({ ...props }) => <h3 className="text-sm font-bold mt-3 mb-1 first:mt-0" {...props} />,
+                        p: ({ ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                        ul: ({ ...props }) => <ul className="list-disc pl-5 mb-2 space-y-1" {...props} />,
+                        ol: ({ ...props }) => <ol className="list-decimal pl-5 mb-2 space-y-1" {...props} />,
+                        strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
+                        code: ({ ...props }) => <code className="bg-gray-200 rounded px-1 py-0.5 text-xs" {...props} />,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                )}
                 {message.chart_data && (
                   <div className="mt-4">
                     <ChartDisplay chartData={message.chart_data} />
