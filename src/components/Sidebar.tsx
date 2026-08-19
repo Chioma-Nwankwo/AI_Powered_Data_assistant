@@ -1,6 +1,9 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { Database, FileText, LogOut, Plus } from 'lucide-react';
+import { deleteAccount } from '../lib/api';
+import { Database, FileText, LogOut, Plus, Trash2, Loader2 } from 'lucide-react';
 
 interface SidebarProps {
   files: Array<{
@@ -15,6 +18,25 @@ interface SidebarProps {
 
 export default function Sidebar({ files, selectedFile, onSelectFile }: SidebarProps) {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Delete your account permanently? This removes your profile, uploaded files, and all conversations. This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      await signOut();
+      navigate('/');
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete account');
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
@@ -82,7 +104,7 @@ export default function Sidebar({ files, selectedFile, onSelectFile }: SidebarPr
         )}
       </div>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 space-y-1">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -91,6 +113,17 @@ export default function Sidebar({ files, selectedFile, onSelectFile }: SidebarPr
         >
           <LogOut className="w-4 h-4" />
           Sign Out
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleDeleteAccount}
+          disabled={deleting}
+          className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+          {deleting ? 'Deleting...' : 'Delete Account'}
         </motion.button>
       </div>
     </div>
