@@ -197,6 +197,59 @@ Return your response as JSON with this structure:
         );
       }
 
+      case 'plan-cleaning': {
+        const { instruction, columns, columnStats } = data;
+
+        const prompt = `A user wants to clean a dataset. Translate their request into a JSON cleaning plan using ONLY these operation types:
+
+- { "type": "drop_columns", "columns": ["exact column name", ...] }
+- { "type": "fill_missing", "column": "exact column name", "strategy": "mean" | "median" | "mode" | "value", "value": <only if strategy is "value"> }
+- { "type": "standardize_missing_markers", "markers": ["-9999", "T", ...] } — use for inconsistent missing/sentinel value markers
+- { "type": "drop_duplicate_rows" }
+- { "type": "trim_whitespace" }
+- { "type": "drop_empty_columns" }
+
+Rules:
+- Only reference column names that exist EXACTLY in the Available Columns list below — never invent, abbreviate, or guess a name.
+- If the request mentions a pattern like "Monthly* columns", resolve it to the actual matching column names from the list.
+- Only include operations that are actually relevant to the request — do not add extra unrequested operations.
+- If the request is ambiguous, make the most reasonable interpretation and mention the assumption in the explanation.
+
+User's request: "${instruction}"
+
+Available Columns: ${columns.join(', ')}
+
+Per-column stats (missing count, unique count, numeric min/max/mean where applicable):
+${JSON.stringify(columnStats, null, 2)}
+
+Return ONLY JSON in this exact structure, nothing else:
+{
+  "operations": [ ...as described above... ],
+  "explanation": "one or two plain-language sentences describing what this plan does"
+}`;
+
+        const text = await callGemini(
+          geminiApiKey,
+          'You are a data cleaning assistant. You output only valid JSON cleaning plans using the exact operation schema given. Never invent column names that are not in the provided list.',
+          prompt,
+          true
+        );
+
+        let plan;
+        try {
+          plan = JSON.parse(text);
+        } catch {
+          plan = { operations: [], explanation: 'Could not generate a cleaning plan for that request.' };
+        }
+
+        return new Response(
+          JSON.stringify(plan),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),

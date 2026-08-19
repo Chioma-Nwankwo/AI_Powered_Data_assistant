@@ -34,6 +34,14 @@ export async function generateSuggestedQuestions(columns: string[], summary: str
   return callAIFunction('generate-questions', { columns, summary });
 }
 
+export async function planCleaning(
+  instruction: string,
+  columns: string[],
+  columnStats: Record<string, unknown>
+) {
+  return callAIFunction('plan-cleaning', { instruction, columns, columnStats });
+}
+
 export async function deleteAccount() {
   const { data: { session } } = await supabase.auth.getSession();
 

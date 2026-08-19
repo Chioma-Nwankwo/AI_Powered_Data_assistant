@@ -10,6 +10,7 @@ import FileUpload from '../components/FileUpload';
 import FileList from '../components/FileList';
 import ChatInterface from '../components/ChatInterface';
 import Sidebar from '../components/Sidebar';
+import DataCleaner from '../components/DataCleaner';
 import { Upload, MessageSquare, Loader2 } from 'lucide-react';
 
 interface UploadedFile {
@@ -244,8 +245,8 @@ export default function Dashboard() {
                 exit={{ opacity: 0 }}
                 className="h-full flex flex-col"
               >
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                  <div className="flex items-start gap-4">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                  <div className="flex items-start gap-4 p-6">
                     <div className="bg-blue-100 p-3 rounded-lg">
                       <MessageSquare className="w-6 h-6 text-blue-600" />
                     </div>
@@ -273,6 +274,14 @@ export default function Dashboard() {
                       )}
                     </div>
                   </div>
+
+                  {fileData?.rows && fileData.rows.length > 0 && (
+                    <DataCleaner
+                      fileName={selectedFile.file_name}
+                      columns={selectedFile.column_names}
+                      rows={fileData.rows}
+                    />
+                  )}
                 </div>
 
                 <ChatInterface
