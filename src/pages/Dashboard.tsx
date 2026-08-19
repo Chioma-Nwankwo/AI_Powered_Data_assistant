@@ -11,7 +11,7 @@ import FileList from '../components/FileList';
 import ChatInterface from '../components/ChatInterface';
 import Sidebar from '../components/Sidebar';
 import DataCleaner from '../components/DataCleaner';
-import { Upload, MessageSquare, Loader2 } from 'lucide-react';
+import { Upload, MessageSquare, Loader2, RefreshCw } from 'lucide-react';
 
 interface UploadedFile {
   id: string;
@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [uploading, setUploading] = useState(false);
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [fileData, setFileData] = useState<any>(null);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
 
   useEffect(() => {
     loadFiles();
@@ -137,6 +138,41 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error loading file data:', error);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!selectedFile || !fileData?.rows || generatingSummary) return;
+
+    setGeneratingSummary(true);
+    try {
+      const sampleRows = getSampleRows(fileData.rows, 10);
+      const aiAnalysis = await analyzeDataFile(
+        selectedFile.column_names,
+        sampleRows,
+        selectedFile.row_count
+      );
+
+      const { error } = await supabase
+        .from('uploaded_files')
+        .update({ summary: aiAnalysis.summary })
+        .eq('id', selectedFile.id);
+
+      if (error) throw error;
+
+      const updatedFile = { ...selectedFile, summary: aiAnalysis.summary };
+      setSelectedFile(updatedFile);
+      setFiles(files.map((f) => (f.id === updatedFile.id ? updatedFile : f)));
+
+      const questionsData = await generateSuggestedQuestions(
+        selectedFile.column_names,
+        aiAnalysis.summary
+      );
+      setSuggestedQuestions(questionsData.questions || []);
+    } catch (error: any) {
+      alert(error.message || 'Failed to generate summary');
+    } finally {
+      setGeneratingSummary(false);
     }
   };
 
@@ -271,6 +307,22 @@ export default function Dashboard() {
                             {selectedFile.summary}
                           </ReactMarkdown>
                         </div>
+                      )}
+                      {!selectedFile.summary && (
+                        <motion.button
+                          whileHover={{ scale: generatingSummary ? 1 : 1.03 }}
+                          whileTap={{ scale: generatingSummary ? 1 : 0.97 }}
+                          onClick={handleGenerateSummary}
+                          disabled={generatingSummary || !fileData?.rows}
+                          className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {generatingSummary ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-4 h-4" />
+                          )}
+                          {generatingSummary ? 'Generating summary...' : 'No summary yet — generate one'}
+                        </motion.button>
                       )}
                     </div>
                   </div>
