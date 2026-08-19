@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Database, Upload, MessageSquare, BarChart3, Sparkles, ArrowRight, FileSpreadsheet, Wand2, LineChart } from 'lucide-react';
+import { Database, Upload, MessageSquare, BarChart3, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function Landing() {
   const features = [
@@ -26,39 +26,8 @@ export default function Landing() {
     },
   ];
 
-  const steps = [
-    {
-      icon: FileSpreadsheet,
-      title: 'Upload your file',
-      description: 'Drop in a CSV or Excel file — no setup, no schema to define.',
-    },
-    {
-      icon: Wand2,
-      title: 'AI reads your data',
-      description: 'Gemini analyzes structure, patterns, and quality automatically.',
-    },
-    {
-      icon: LineChart,
-      title: 'Ask and visualize',
-      description: 'Chat in plain English and get answers with charts on demand.',
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 relative overflow-hidden">
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute top-1/3 -left-32 w-80 h-80 bg-blue-200/40 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-      />
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -142,8 +111,8 @@ export default function Landing() {
             className="mt-20 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
           >
             <img
-              src="https://images.pexels.com/photos/7109291/pexels-photo-7109291.jpeg?auto=compress&cs=tinysrgb&w=1200"
-              alt="Analyst reviewing a data chart dashboard on a laptop"
+              src="https://images.pexels.com/photos/7564231/pexels-photo-7564231.jpeg?auto=compress&cs=tinysrgb&w=1200"
+              alt="Data Analysis Dashboard"
               className="w-full h-96 object-cover"
             />
           </motion.div>
@@ -174,15 +143,11 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -8 }}
-                className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 group"
+                className="bg-white rounded-xl p-6 shadow-lg border border-gray-200"
               >
-                <motion.div
-                  whileHover={{ scale: 1.15, rotate: -6 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                  className="bg-blue-100 group-hover:bg-blue-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors"
-                >
-                  <feature.icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
-                </motion.div>
+                <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <feature.icon className="w-6 h-6 text-blue-600" />
+                </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {feature.title}
                 </h3>
@@ -191,69 +156,6 @@ export default function Landing() {
                 </p>
               </motion.div>
             ))}
-          </div>
-        </section>
-
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200"
-            >
-              <img
-                src="https://images.pexels.com/photos/8145328/pexels-photo-8145328.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                alt="Team analyzing charts on laptops"
-                className="w-full h-80 object-cover"
-              />
-            </motion.div>
-
-            <div>
-              <motion.h2
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="text-4xl font-bold text-gray-900 mb-4"
-              >
-                How It Works
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-gray-600 mb-8"
-              >
-                From raw file to real answers in three steps.
-              </motion.p>
-
-              <div className="space-y-6">
-                {steps.map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.2 + index * 0.12 }}
-                    className="flex items-start gap-4"
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: 6 }}
-                      className="bg-blue-100 w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-                    >
-                      <step.icon className="w-5 h-5 text-blue-600" />
-                    </motion.div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{step.title}</h3>
-                      <p className="text-sm text-gray-600">{step.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 

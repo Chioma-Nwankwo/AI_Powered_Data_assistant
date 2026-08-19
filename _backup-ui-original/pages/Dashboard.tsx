@@ -204,13 +204,7 @@ export default function Dashboard() {
                 className="max-w-4xl mx-auto"
               >
                 <div className="text-center mb-8">
-                  <motion.div
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    className="inline-flex bg-blue-100 p-4 rounded-2xl mb-4"
-                  >
-                    <Upload className="w-10 h-10 text-blue-600" />
-                  </motion.div>
+                  <Upload className="w-16 h-16 mx-auto text-blue-600 mb-4" />
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">
                     Get Started
                   </h2>

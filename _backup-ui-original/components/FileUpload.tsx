@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, Loader2 } from 'lucide-react';
 
@@ -9,7 +9,6 @@ interface FileUploadProps {
 
 export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -20,7 +19,6 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) {
       onUpload(file);
@@ -29,25 +27,14 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!isDragging) setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
   };
 
   return (
     <motion.div
       whileHover={{ scale: uploading ? 1 : 1.01 }}
-      animate={{
-        borderColor: isDragging ? '#2563eb' : '#d1d5db',
-        backgroundColor: isDragging ? '#eff6ff' : '#ffffff',
-      }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      className="border-2 border-dashed rounded-xl p-12 text-center hover:border-blue-500 transition-colors cursor-pointer"
+      className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-500 transition-colors cursor-pointer bg-white"
       onClick={() => !uploading && fileInputRef.current?.click()}
     >
       <input
@@ -69,15 +56,11 @@ export default function FileUpload({ onUpload, uploading }: FileUploadProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center">
-          <motion.div
-            animate={{ y: isDragging ? -6 : 0, scale: isDragging ? 1.1 : 1 }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="bg-blue-100 p-4 rounded-full mb-4"
-          >
+          <div className="bg-blue-100 p-4 rounded-full mb-4">
             <Upload className="w-8 h-8 text-blue-600" />
-          </motion.div>
+          </div>
           <p className="text-gray-700 font-medium mb-2">
-            {isDragging ? 'Drop it right here' : 'Drop your file here or click to browse'}
+            Drop your file here or click to browse
           </p>
           <p className="text-sm text-gray-500">
             Supports CSV and Excel files (up to 50MB)

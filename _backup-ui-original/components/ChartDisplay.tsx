@@ -125,7 +125,6 @@ export default function ChartDisplay({ chartData }: ChartDisplayProps) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ boxShadow: '0 12px 24px -8px rgba(37, 99, 235, 0.2)' }}
       className="bg-white p-4 rounded-lg border border-gray-200 mt-3"
     >
       {renderChart()}

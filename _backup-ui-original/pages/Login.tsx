@@ -2,57 +2,34 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { Database, Mail, Lock, User as UserIcon, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
+import { Database, Mail, Lock, AlertCircle } from 'lucide-react';
 
-export default function Signup() {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signInWithGoogle } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess(false);
     setLoading(true);
 
-    if (!email || !password || !fullName) {
+    if (!email || !password) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
     }
 
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      setLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      setLoading(false);
-      return;
-    }
-
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signIn(email, password);
 
     if (error) {
       setError(error.message);
       setLoading(false);
     } else {
-      setSuccess(true);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+      navigate('/dashboard');
     }
   };
 
@@ -65,48 +42,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-        <motion.img
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1 }}
-          src="https://images.pexels.com/photos/7653571/pexels-photo-7653571.jpeg?auto=compress&cs=tinysrgb&w=1200"
-          alt="People collaborating with data graphs"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-900/90 via-blue-800/40 to-transparent" />
-
-        <div className="relative h-full flex flex-col justify-end p-12 text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full text-sm font-medium mb-6 w-fit"
-          >
-            <Sparkles className="w-4 h-4" />
-            AI-Powered Data Analysis
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-4xl font-bold mb-4 leading-tight"
-          >
-            Turn spreadsheets into answers
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-blue-100 text-lg"
-          >
-            Upload a file, ask a question, get an insight. No formulas required.
-          </motion.p>
-        </div>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,10 +57,10 @@ export default function Signup() {
           </div>
 
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
-            Create Account
+            Welcome Back
           </h2>
           <p className="text-center text-gray-600 mb-8">
-            Start analyzing your data with AI
+            Sign in to your AI Data Assistant
           </p>
 
           {error && (
@@ -138,36 +74,7 @@ export default function Signup() {
             </motion.div>
           )}
 
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3"
-            >
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-green-800">Account created successfully! Redirecting...</p>
-            </motion.div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                  placeholder="John Doe"
-                  required
-                />
-              </div>
-            </div>
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -202,9 +109,6 @@ export default function Signup() {
                   required
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Must be at least 6 characters
-              </p>
             </div>
 
             <motion.button
@@ -214,7 +118,7 @@ export default function Signup() {
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </motion.button>
           </form>
 
@@ -253,19 +157,18 @@ export default function Signup() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign up with Google
+              Sign in with Google
             </motion.button>
           </div>
 
           <p className="mt-8 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-700">
-              Sign in
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-700">
+              Sign up
             </Link>
           </p>
         </div>
       </motion.div>
-      </div>
     </div>
   );
 }

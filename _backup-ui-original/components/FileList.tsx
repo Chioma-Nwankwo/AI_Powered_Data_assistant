@@ -37,8 +37,7 @@ export default function FileList({ files, onSelect, onDelete }: FileListProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.05 }}
-          whileHover={{ y: -4, boxShadow: '0 12px 24px -8px rgba(37, 99, 235, 0.25)' }}
-          className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer group"
+          className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer group"
           onClick={() => onSelect(file)}
         >
           <div className="flex items-start justify-between mb-3">

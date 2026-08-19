@@ -69,14 +69,10 @@ export default function Sidebar({ files, selectedFile, onSelectFile }: SidebarPr
         </h3>
 
         <div className="space-y-2">
-          {files.map((file, index) => (
+          {files.map((file) => (
             <motion.button
               key={file.id}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.04 }}
               whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
               onClick={() => onSelectFile(file)}
               className={`w-full text-left p-3 rounded-lg transition-colors ${
                 selectedFile?.id === file.id
