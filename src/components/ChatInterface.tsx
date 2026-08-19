@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { supabase } from '../lib/supabase';
 import { queryData } from '../lib/api';
-import { getSampleRows } from '../lib/fileUtils';
+import { getSampleRows, getColumnStats } from '../lib/fileUtils';
 import ChartDisplay from './ChartDisplay';
 
 interface Message {
@@ -106,12 +106,16 @@ export default function ChatInterface({ file, fileData, suggestedQuestions }: Ch
     });
 
     try {
-      const sampleData = getSampleRows(fileData?.rows || [], 20);
+      const rows = fileData?.rows || [];
+      const sampleData = getSampleRows(rows, 20);
+      const columnStats = getColumnStats(rows, file.column_names);
       const response = await queryData(
         question,
         file.column_names,
         sampleData,
-        file.summary || ''
+        file.summary || '',
+        columnStats,
+        rows.length
       );
 
       const assistantMessage: Message = {

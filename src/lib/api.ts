@@ -38,12 +38,16 @@ export async function queryData(
   question: string,
   columns: string[],
   sampleData: any[],
-  fullDataSummary: string
+  fullDataSummary: string,
+  columnStats: Record<string, unknown>,
+  rowCount: number
 ) {
   return callAIFunction('query-data', {
     question,
     columns,
     sampleData,
     fullDataSummary,
+    columnStats,
+    rowCount,
   });
 }

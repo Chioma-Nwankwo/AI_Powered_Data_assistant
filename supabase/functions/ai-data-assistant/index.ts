@@ -27,7 +27,7 @@ async function callGemini(
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096,
           ...(jsonResponse ? { responseMimeType: "application/json" } : {}),
         },
       }),
@@ -147,7 +147,7 @@ Return ONLY a JSON array of strings (the questions), nothing else.`;
       }
 
       case 'query-data': {
-        const { question, columns, sampleData, fullDataSummary } = data;
+        const { question, columns, sampleData, fullDataSummary, columnStats, rowCount } = data;
 
         const prompt = `Answer this question about the dataset: "${question}"
 
@@ -155,7 +155,12 @@ Dataset Context:
 ${fullDataSummary}
 
 Available Columns: ${columns.join(', ')}
-Sample Data:
+Total Rows: ${rowCount}
+
+Exact per-column statistics computed from the FULL dataset (not a sample) — use these numbers directly for any question about missing values, counts, uniques, min/max, or averages, rather than estimating from the sample below:
+${JSON.stringify(columnStats, null, 2)}
+
+Sample Data (first rows, for context on values/format only — not for counting):
 ${JSON.stringify(sampleData, null, 2)}
 
 Provide:

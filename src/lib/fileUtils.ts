@@ -61,3 +61,53 @@ export async function parseFile(file: File) {
 export function getSampleRows(rows: any[], count: number = 5) {
   return rows.slice(0, Math.min(count, rows.length));
 }
+
+function isMissing(value: any) {
+  return value === null || value === undefined || String(value).trim() === '';
+}
+
+export interface ColumnStats {
+  missingCount: number;
+  uniqueCount: number;
+  numeric?: { min: number; max: number; mean: number };
+}
+
+export function getColumnStats(rows: any[], columns: string[]): Record<string, ColumnStats> {
+  const stats: Record<string, ColumnStats> = {};
+
+  for (const column of columns) {
+    let missingCount = 0;
+    const uniqueValues = new Set<string>();
+    const numericValues: number[] = [];
+
+    for (const row of rows) {
+      const value = row[column];
+      if (isMissing(value)) {
+        missingCount++;
+        continue;
+      }
+      uniqueValues.add(String(value));
+      const numericValue = Number(value);
+      if (!Number.isNaN(numericValue) && String(value).trim() !== '') {
+        numericValues.push(numericValue);
+      }
+    }
+
+    const columnStats: ColumnStats = {
+      missingCount,
+      uniqueCount: uniqueValues.size,
+    };
+
+    if (numericValues.length > 0 && numericValues.length === rows.length - missingCount) {
+      columnStats.numeric = {
+        min: Math.min(...numericValues),
+        max: Math.max(...numericValues),
+        mean: numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length,
+      };
+    }
+
+    stats[column] = columnStats;
+  }
+
+  return stats;
+}
