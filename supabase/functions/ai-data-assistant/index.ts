@@ -74,18 +74,13 @@ Deno.serve(async (req: Request) => {
       case 'analyze-data': {
         const { columns, sampleRows, rowCount } = data;
 
-        const prompt = `Analyze this dataset and provide:
-1. A brief summary (2-3 sentences) of what this data contains
-2. Key insights about the data structure
-3. Any notable patterns or interesting findings
+        const prompt = `Write a short summary of this dataset for a card under the filename in a dashboard UI — strictly 2-3 plain sentences, no headers, no bullet points, no markdown formatting. Just say what the data is and the single most useful thing to know about it (e.g. a notable quality issue or pattern), in plain prose.
 
 Dataset Info:
 - Total Rows: ${rowCount}
 - Columns: ${columns.join(', ')}
 - Sample Data (first few rows):
-${JSON.stringify(sampleRows, null, 2)}
-
-Provide a concise, informative summary.`;
+${JSON.stringify(sampleRows, null, 2)}`;
 
         const summary = await callGemini(
           geminiApiKey,

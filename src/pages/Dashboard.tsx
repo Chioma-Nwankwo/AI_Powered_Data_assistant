@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { parseFile, getSampleRows } from '../lib/fileUtils';
@@ -255,9 +257,19 @@ export default function Dashboard() {
                         {selectedFile.row_count.toLocaleString()} rows · {selectedFile.column_names.length} columns
                       </p>
                       {selectedFile.summary && (
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {selectedFile.summary}
-                        </p>
+                        <div className="text-sm text-gray-700 leading-relaxed">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              p: ({ ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                              strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
+                              ul: ({ ...props }) => <ul className="list-disc pl-5 mb-2 space-y-1" {...props} />,
+                              li: ({ ...props }) => <li {...props} />,
+                            }}
+                          >
+                            {selectedFile.summary}
+                          </ReactMarkdown>
+                        </div>
                       )}
                     </div>
                   </div>
