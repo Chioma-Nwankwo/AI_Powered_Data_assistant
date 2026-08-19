@@ -158,39 +158,36 @@ ${JSON.stringify(columnStats, null, 2)}
 Sample Data (first rows, for context on values/format only — not for counting):
 ${JSON.stringify(sampleData, null, 2)}
 
-Provide:
-1. A clear, direct answer to the question. If it involves many columns (more than ~15), do NOT list every single one individually — group them by pattern (e.g. "all Monthly* columns are 97-100% missing because they're recorded once per month") and call out only the most notable exceptions or outliers by name. Keep the answer readable in a chat bubble, not an exhaustive table in prose form.
-2. If applicable, suggest a visualization type (bar, line, pie, scatter, area) and provide chart data in this exact format, capped at the 15 most relevant/significant items (e.g. highest or lowest values) rather than one entry per column:
-{
-  "type": "bar",
-  "data": [{"name": "Category1", "value": 100}, ...]
-}
+Write a clear, direct answer to the question in plain markdown (headers, bold, bullet lists are fine — this will be rendered directly, not parsed as JSON). If it involves many columns (more than ~15), do NOT list every single one individually — group them by pattern (e.g. "all Monthly* columns are 97-100% missing because they're recorded once per month") and call out only the most notable exceptions or outliers by name. Keep the answer readable in a chat bubble, not an exhaustive table.
 
-Return your response as JSON with this structure:
-{
-  "answer": "your detailed answer here",
-  "chartData": {"type": "bar", "data": [...]} or null if no chart needed
-}`;
+After your answer, if — and only if — a chart would genuinely help, add a new line starting with exactly "CHART_DATA:" followed by ONE line of compact JSON (no line breaks inside it) in this exact format, capped at the 15 most relevant/significant items:
+CHART_DATA:{"type":"bar","data":[{"name":"Category1","value":100}]}
+
+Valid "type" values: bar, line, pie, scatter, area. If no chart is needed, do not include a CHART_DATA line at all.`;
 
         const text = await callGemini(
           geminiApiKey,
-          'You are a data analyst. Answer questions about datasets clearly and suggest visualizations when appropriate. Always return valid JSON.',
+          'You are a data analyst. Answer questions about datasets clearly in plain markdown, and append a CHART_DATA line only when a visualization is genuinely useful.',
           prompt,
-          true
+          false
         );
 
-        let parsedResponse;
-        try {
-          parsedResponse = JSON.parse(text);
-        } catch {
-          parsedResponse = {
-            answer: text,
-            chartData: null
-          };
+        let answer = text.trim();
+        let chartData = null;
+
+        const chartMarkerIndex = text.indexOf('CHART_DATA:');
+        if (chartMarkerIndex !== -1) {
+          answer = text.slice(0, chartMarkerIndex).trim();
+          const chartJson = text.slice(chartMarkerIndex + 'CHART_DATA:'.length).trim();
+          try {
+            chartData = JSON.parse(chartJson);
+          } catch {
+            chartData = null;
+          }
         }
 
         return new Response(
-          JSON.stringify(parsedResponse),
+          JSON.stringify({ answer, chartData }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
