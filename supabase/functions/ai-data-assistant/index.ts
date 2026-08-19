@@ -27,7 +27,7 @@ async function callGemini(
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 4096,
+          maxOutputTokens: 8192,
           ...(jsonResponse ? { responseMimeType: "application/json" } : {}),
         },
       }),
@@ -164,8 +164,8 @@ Sample Data (first rows, for context on values/format only — not for counting)
 ${JSON.stringify(sampleData, null, 2)}
 
 Provide:
-1. A clear, direct answer to the question
-2. If applicable, suggest a visualization type (bar, line, pie, scatter, area) and provide chart data in this exact format:
+1. A clear, direct answer to the question. If it involves many columns (more than ~15), do NOT list every single one individually — group them by pattern (e.g. "all Monthly* columns are 97-100% missing because they're recorded once per month") and call out only the most notable exceptions or outliers by name. Keep the answer readable in a chat bubble, not an exhaustive table in prose form.
+2. If applicable, suggest a visualization type (bar, line, pie, scatter, area) and provide chart data in this exact format, capped at the 15 most relevant/significant items (e.g. highest or lowest values) rather than one entry per column:
 {
   "type": "bar",
   "data": [{"name": "Category1", "value": 100}, ...]
